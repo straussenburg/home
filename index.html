@@ -322,6 +322,12 @@ table.vg tr.clickable{cursor:pointer;} table.vg tr.clickable:hover td{background
 .aufbau-flag{ font-size:10px; background:#2a2019; color:var(--p-gold); padding:2px 7px; border-radius:2px; flex-shrink:0; }
 .aufbau-hinweis-inline{ font-size:11px; color:var(--p-text-dim); font-style:italic; flex-shrink:0; }
 .aufbau-status{ flex-shrink:0; }
+.aufbau-info-btn{ flex-shrink:0; width:17px; height:17px; line-height:15px; border-radius:50%; border:1.3px solid var(--p-gold); background:transparent; color:var(--p-gold); font-size:11px; font-style:italic; font-family:Georgia,'Times New Roman',serif; font-weight:700; padding:0; cursor:pointer; text-align:center; }
+.aufbau-info-btn:hover{ background:var(--p-gold); color:var(--p-ink); }
+.info-overlay{ position:fixed; inset:0; z-index:650; background:rgba(10,14,20,0.72); display:flex; align-items:center; justify-content:center; padding:18px; }
+.info-box{ position:relative; background:var(--p-panel); border:1px solid var(--p-line); border-radius:4px; width:min(480px,100%); padding:22px 24px; }
+.info-box-title{ font-size:13px; font-weight:600; color:var(--p-gold); margin-bottom:10px; padding-right:20px; }
+.info-box-text{ font-size:13.5px; line-height:1.55; color:var(--p-text); white-space:pre-line; }
 
 /* ---- Editor ---- */
 .editor-box{ background:var(--p-panel); border:1px solid var(--p-gold); border-radius:2px; padding:16px 18px; margin:14px 0 22px; }
@@ -608,6 +614,14 @@ table.vg tr.clickable{cursor:pointer;} table.vg tr.clickable:hover td{background
       <input type="password" id="pwNeuWiederholen" placeholder="Neues Passwort wiederholen" autocomplete="off" onkeydown="if(event.key==='Enter') passwortAendernAbschicken();">
       <button class="submit-btn" onclick="passwortAendernAbschicken()">Passwort speichern</button>
       <div class="login-error" id="pwAendernError">Fehler.</div>
+    </div>
+  </div>
+
+  <div id="aufbauInfoOverlay" class="info-overlay" style="display:none;" onclick="schliesseAufbauInfo()">
+    <div class="info-box" onclick="event.stopPropagation()">
+      <button class="lk-close" onclick="schliesseAufbauInfo()" title="Schließen">✕</button>
+      <div class="info-box-title" id="aufbauInfoTitel"></div>
+      <div class="info-box-text" id="aufbauInfoText"></div>
     </div>
   </div>
 
@@ -1491,10 +1505,14 @@ const PORTAL_AEMTER = {
    Lehrkraft, inkl. der uneinheitlichen "c)"-Bezeichnung – NICHT verändern.
 --------------------------------------------------------------------- */
 const AUFBAUMUSTER = [
-  {id:"A", number:"A.", title:"Arbeitsziel/Maßnahme", editable:true, weight:5},
+  {id:"A", number:"A.", title:"Arbeitsziel/Maßnahme", editable:true, weight:5,
+    info:"Prüfen Sie gutachtlich, ob eine ordnungsbehördliche Anordnung gegen Frau Straub ergehen kann, mit der ihr die Entfernung des straßenseitig angebrachten Stacheldrahtzaunes aufgegeben werden kann!"},
   {id:"B", number:"B.", title:"Rechtmäßigkeit", weight:0, children:[
-    {id:"B_I", editable:true, number:"I.", title:"Vorbehalt des Gesetzes", weight:0, children:[
-      {id:"B_I_0", number:"•", title:"Grundsatz der Gesetzmäßigkeit der Verwaltung", editable:true, weight:4},
+    {id:"B_I", editable:true, number:"I.", title:"Vorbehalt des Gesetzes", weight:0,
+      info:"Prüfen Sie in dieser Reihenfolge, ob eine Ermächtigungsgrundlage einschlägig ist: Gibt es eine vorrangige Spezialregelung des Bundes- oder Landesrechts (§ 3 I 2 NPOG)? Wenn nicht: Passt eine der Standardermächtigungen nach §§ 12 ff. NPOG auf den Sachverhalt? Erst wenn beides zu verneinen ist, kommt die Befugnisgeneralklausel (§ 11 NPOG) in Betracht. Formulieren Sie Ihre Prüfung Schritt für Schritt entlang dieser Reihenfolge und begründen Sie jeweils nachvollziehbar, warum eine Stufe (nicht) einschlägig ist.",
+      children:[
+      {id:"B_I_0", number:"•", title:"Grundsatz der Gesetzmäßigkeit der Verwaltung", editable:true, weight:4,
+        info:"Die beabsichtigte Anordnung ist dann rechtmäßig, wenn sie dem Grundsatz der Gesetzmäßigkeit der Verwaltung (Art. 20 III GG) entspricht, d. h. in formeller und materieller Hinsicht den Anforderungen der Rechtsordnung genügt (Vorrang des Gesetzes). Da aus Sicht der Frau S, als Adressatin, eine Beseitigung des Zaunes eine belastende Maßnahme ist, immerhin wird in ihr Eigentum eingegriffen und ihr ein zusätzliches Tun auferlegt, benötigt die Behörde für ihr Handeln eine Ermächtigungsgrundlage. (Vorbehalt des Gesetzes)"},
       {id:"B_I_1", number:"1.", title:"Vorrangige besondere Regelung der Gefahrenabwehr einer Vorschrift des Bundes- oder Landesrechts (§ 3 I, 2 NPOG)", editable:true, weight:4},
       {id:"B_I_2", number:"2.", title:"Standardermächtigungen nach § 12 ff. NPOG (insbesondere §§ 12 bis 29 NPOG)", editable:true, weight:4},
       {id:"B_I_3", number:"3.", title:"Befugnisgeneralklausel: § 11 NPOG (i. V. m. einer Ge-/Verbotsnorm)", editable:true, weight:7}
@@ -1823,6 +1841,14 @@ function oeffneLehrkraftPanel(){
 function schliesseLehrkraftPanel(){
   document.getElementById('lehrkraftPanel').style.display = 'none';
 }
+function zeigeAufbauInfo(text, titel){
+  document.getElementById('aufbauInfoTitel').textContent = titel || '';
+  document.getElementById('aufbauInfoText').textContent = text || '';
+  document.getElementById('aufbauInfoOverlay').style.display = 'flex';
+}
+function schliesseAufbauInfo(){
+  document.getElementById('aufbauInfoOverlay').style.display = 'none';
+}
 async function lehrkraftAnmelden(){
   const email = document.getElementById('lkEmail').value.trim();
   const pw = document.getElementById('lkPassword').value;
@@ -2062,10 +2088,18 @@ function renderAufbaumuster(){
       <span class="aufbau-toggle">${hatKinder ? (istOffen ? '▾' : '▸') : '·'}</span>
       <span class="aufbau-num">${n.number}</span>
       <span class="aufbau-title">${n.title}</span>
+      ${n.info ? `<button type="button" class="aufbau-info-btn" data-info-node="${n.id}" title="Hinweis anzeigen" aria-label="Hinweis anzeigen">i</button>` : ''}
       ${n.special ? '<span class="aufbau-flag">Besonderer Prüfungspunkt</span>' : ''}
       ${(!istEditierbar && n.hinweis) ? `<span class="aufbau-hinweis-inline">${n.hinweis}</span>` : ''}
       ${istEditierbar ? `<span class="aufbau-status">${badge(statusBadgeClass(status))}</span>` : '<span class="aufbau-status"></span>'}
     `;
+    const infoBtn = row.querySelector('.aufbau-info-btn');
+    if(infoBtn){
+      infoBtn.onclick = (e)=>{
+        e.stopPropagation();
+        zeigeAufbauInfo(n.info, n.number + ' ' + n.title);
+      };
+    }
     row.onclick = (e)=>{
       e.stopPropagation();
       if(hatKinder){
