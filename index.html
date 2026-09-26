@@ -197,6 +197,7 @@ footer.site-footer{background:var(--blue-dark); color:#c9d3de; margin-top:40px;}
 .sidebar-foot{padding:14px 16px; border-top:1px solid var(--p-line); font-size:12px;}
 .sidebar-foot button{width:100%; margin-top:10px; padding:8px; font-size:12px; background:transparent; border:1px solid var(--p-line); color:var(--p-text-dim); border-radius:2px; cursor:pointer;}
 .sidebar-foot button:hover{border-color:var(--p-text-dim); color:var(--p-text);}
+.portal-version{margin-top:10px; font-size:9px; color:var(--p-text-dim); opacity:.55; text-align:center; letter-spacing:.02em;}
 .main-col{display:flex; flex-direction:column; overflow:hidden;}
 .topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 26px; border-bottom:1px solid var(--p-line); background:var(--p-panel);}
 .topbar h2{font-size:19px; font-weight:600;}
@@ -337,7 +338,7 @@ table.vg tr.clickable{cursor:pointer;} table.vg tr.clickable:hover td{background
 .editor-box textarea{ width:100%; min-height:110px; background:var(--p-ink); border:1px solid var(--p-line); color:var(--p-text); font-family:'Inter',sans-serif; font-size:13px; padding:10px; border-radius:2px; resize:vertical; }
 .editor-box textarea:focus{ outline:none; border-color:var(--p-gold); }
 .editor-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
-.editor-msg{ font-size:12px; color:var(--p-green); }
+.editor-msg{ font-size:12px; color:var(--p-gold); }
 .editor-btns{ display:flex; gap:8px; }
 .btn-secondary{ padding:9px 16px; background:transparent; border:1px solid var(--p-line); color:var(--p-text); border-radius:2px; font-size:13px; cursor:pointer; }
 .btn-secondary:hover{ border-color:var(--p-text-dim); }
@@ -349,8 +350,8 @@ table.vg tr.clickable{cursor:pointer;} table.vg tr.clickable:hover td{background
 .progress-bar-inner{ height:100%; background:var(--p-gold); transition:width .2s; }
 
 /* ---- Abschluss / Gutachten ---- */
-.abschluss-box{ background:var(--p-panel); border:1px solid var(--p-line); border-left:3px solid var(--p-green); border-radius:2px; padding:18px 20px; margin:20px 0; }
-.abschluss-check{ font-size:15px; font-weight:600; color:var(--p-green); margin-bottom:8px; }
+.abschluss-box{ background:var(--p-panel); border:1px solid var(--p-line); border-left:3px solid var(--p-gold); border-radius:2px; padding:18px 20px; margin:20px 0; }
+.abschluss-check{ font-size:15px; font-weight:600; color:var(--p-gold); margin-bottom:8px; }
 .abschluss-box p{ font-size:13px; color:var(--p-text-dim); margin-bottom:8px; }
 .gutachten-text{ background:var(--p-ink); border:1px solid var(--p-line); padding:14px 16px; font-family:'Inter',sans-serif; font-size:12.5px; color:var(--p-text); white-space:pre-wrap; line-height:1.6; max-height:420px; overflow-y:auto; margin:10px 0; }
 
@@ -665,6 +666,7 @@ table.vg tr.clickable{cursor:pointer;} table.vg tr.clickable:hover td{background
           <button onclick="testPostAusloesen()">Postnachricht jetzt auslösen (Test)</button>
           <button onclick="testZuruecksetzen()">Eigene Daten zurücksetzen (Test)</button>
         </div>
+        <div class="portal-version">Version <span id="portalVersionLabel"></span></div>
       </div>
     </aside>
     <div class="main-col">
@@ -692,6 +694,9 @@ table.vg tr.clickable{cursor:pointer;} table.vg tr.clickable:hover td{background
         <button class="dokv-close" onclick="schliesseDokumentViewer()" title="Schließen">✕</button>
       </div>
       <div class="dokv-toolbar">
+        <button onclick="dokvScrollHoch()" title="Im Dokument nach oben"><i class="ti ti-chevron-up"></i></button>
+        <button onclick="dokvScrollRunter()" title="Im Dokument nach unten"><i class="ti ti-chevron-down"></i></button>
+        <span class="dokv-sep"></span>
         <button onclick="pdfSeiteZurueck()" title="Vorherige Seite"><i class="ti ti-chevron-left"></i></button>
         <span class="dokv-seite">Seite <span id="dokvSeiteNr">1</span> / <span id="dokvSeitenGesamt">1</span></span>
         <button onclick="pdfSeiteVor()" title="Nächste Seite"><i class="ti ti-chevron-right"></i></button>
@@ -1348,6 +1353,12 @@ window.addEventListener('DOMContentLoaded', ()=>{ renderNav(); route(); });
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 
+/* Versionsnummer des Portals. Wird unten links im Portal klein angezeigt.
+   Bei jeder inhaltlichen Änderung an dieser Datei bitte hochzählen, damit
+   jederzeit erkennbar ist, welcher Stand gerade online ist. Begonnen am
+   26.09.2026 bei 1.0, da zuvor keine Versionsnummer geführt wurde. */
+const PORTAL_VERSION = "1.0";
+
 /* =====================================================================
    STRAUSSENBURG MITARBEITERPORTAL – zentrale Konfiguration & Logik
    Abschnitte:
@@ -1525,9 +1536,7 @@ const AUFBAUMUSTER = [
           {id:"B_II_1_a_iii", number:"iii)", title:"örtliche Zuständigkeit der Verwaltungsbehörde: § 100 I 2 NPOG", editable:true, weight:3}
         ]},
         {id:"B_II_1_b", number:"b.", title:"Verfahren – insbesondere: Anhörung § 28 VwVfG (Frist, Notwendigkeit, Art und Weise); ggf. Mitwirkungsverbote §§ 20, 21 VwVfG", editable:true, weight:5},
-        {id:"B_II_1_c", editable:false, number:"c.", title:"Form", weight:0, hinweis:"Muss nicht geprüft werden"},
-        {id:"B_II_1_c2", number:"c)", title:"Bekanntgabe: § 41 II VwVfG oder § 41 V VwVfG, § 1 NVwZG → VwZG", editable:true, weight:2},
-        {id:"B_II_1_d", number:"d)", title:"Rechtsbehelfsbelehrung: § 37 VI VwVfG, §§ 79 VwVfG i. V. m. § 70 I VwGO", editable:true, weight:2}
+        {id:"B_II_1_c", editable:false, number:"c.", title:"Form", weight:0, hinweis:"Muss nicht geprüft werden"}
       ]},
       {id:"B_II_2", editable:true, number:"2.", title:"Materielle Rechtmäßigkeit", weight:0, children:[
         {id:"B_II_2_a", editable:true, number:"a.", title:"Tatbestandsvoraussetzungen", weight:20},
@@ -1961,6 +1970,8 @@ function renderPortal(){
   document.getElementById('userLabel').innerHTML = `${s.vorname} ${s.nachname}<br><span style="color:var(--p-text-dim); font-weight:400;">${s.rolle}</span>`;
   document.getElementById('avInit').textContent = (s.vorname[0]+s.nachname[0]).toUpperCase();
   document.getElementById('userChipText').textContent = s.vorname + ' ' + s.nachname;
+  const vLabel = document.getElementById('portalVersionLabel');
+  if(vLabel) vLabel.textContent = PORTAL_VERSION;
   document.getElementById('tabsRow').style.display = currentView==="fallakte" ? "none" : "flex";
   document.querySelectorAll('.tab').forEach(t=>{ t.classList.toggle('active', t.dataset.tab === currentTab); });
 
@@ -2481,6 +2492,16 @@ async function pdfSeiteRendern(){
 }
 function pdfSeiteVor(){ if(!DOKV.pdf || DOKV.seite>=DOKV.seitenGesamt) return; DOKV.seite++; pdfSeiteRendern(); }
 function pdfSeiteZurueck(){ if(!DOKV.pdf || DOKV.seite<=1) return; DOKV.seite--; pdfSeiteRendern(); }
+function dokvScrollHoch(){
+  const wrap = document.getElementById('dokvCanvasWrap');
+  if(!wrap) return;
+  wrap.scrollBy({ top: -Math.round(wrap.clientHeight*0.7), behavior:'smooth' });
+}
+function dokvScrollRunter(){
+  const wrap = document.getElementById('dokvCanvasWrap');
+  if(!wrap) return;
+  wrap.scrollBy({ top: Math.round(wrap.clientHeight*0.7), behavior:'smooth' });
+}
 function pdfFarbeSetzen(farbe){
   DOKV.farbe = farbe;
   document.querySelectorAll('.dokv-farbe').forEach(b=>{ b.classList.toggle('active', b.dataset.farbe===farbe); });
