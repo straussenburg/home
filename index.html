@@ -348,6 +348,8 @@ table.vg tr.clickable{cursor:pointer;} table.vg tr.clickable:hover td{background
 .editor-box textarea:focus{ outline:none; border-color:var(--p-gold); }
 .editor-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
 .editor-msg{ font-size:12px; color:var(--p-gold); }
+.editor-msg.autosave{ color:var(--p-text-dim); }
+.ordnungsamt-hervor{ color:#3fe36b !important; font-weight:700 !important; } /* helles, sattes Grün */
 .editor-btns{ display:flex; gap:8px; }
 .btn-secondary{ padding:9px 16px; background:transparent; border:1px solid var(--p-line); color:var(--p-text); border-radius:2px; font-size:13px; cursor:pointer; }
 .btn-secondary:hover{ border-color:var(--p-text-dim); }
@@ -1372,8 +1374,12 @@ window.addEventListener('DOMContentLoaded', ()=>{ renderNav(); route(); });
    Nach z folgt die nächste Zahl mit a (0.9z → 1.0a).
    Verlauf:
    0.9e – 26.09.2026: Türkis/Orange-Farben, Pfeil-Symbole im Dokumentviewer,
-          Freihand-Notizen (Finger/Stift) im Dokumentviewer. */
-const PORTAL_VERSION = "0.9e";
+          Freihand-Notizen (Finger/Stift) im Dokumentviewer.
+   0.9f – 28.09.2026: Automatisches Speichern im Aufbaumuster-Editor,
+          „Ordnungsamt“ im Kopfbereich fett und farbig hervorgehoben.
+   0.9g – 28.09.2026: Status-Anzeige nur noch bei Punkten mit Textfeld
+          (nicht bei Gliederungsüberschriften), Ordnungsamt in hellem Grün. */
+const PORTAL_VERSION = "0.9g";
 document.addEventListener('DOMContentLoaded', ()=>{
   const el = document.getElementById('portalVersionLabel');
   if(el) el.textContent = PORTAL_VERSION;
@@ -1932,6 +1938,7 @@ async function lehrkraftPasswortZuruecksetzen(){
   }
 }
 function logout(){
+  editorAutosaveJetzt();
   setzeAktuellenBenutzer(null);
   CURRENT_FB_UID = null;
   if(window.STRAUSSENBURG_FB){ window.STRAUSSENBURG_FB.signOutUser(); }
@@ -1984,6 +1991,7 @@ function badge(status){
   return `<span class="badge ${cls}">${label}</span>`;
 }
 function renderPortal(){
+  editorAutosaveJetzt();
   const a = PORTAL_AEMTER[currentAmt];
   const s = aktuellerSchueler();
   if(!s){ zeigeLoginBildschirm(); return; }
@@ -1995,13 +2003,20 @@ function renderPortal(){
   document.getElementById('tabsRow').style.display = currentView==="fallakte" ? "none" : "flex";
   document.querySelectorAll('.tab').forEach(t=>{ t.classList.toggle('active', t.dataset.tab === currentTab); });
 
+  const titelEl = document.getElementById('amtTitle'), subEl = document.getElementById('amtSub');
   if(currentView === "fallakte"){
-    document.getElementById('amtTitle').textContent = "Fallakte " + FALL.aktenzeichen;
-    document.getElementById('amtSub').textContent = FALL.behoerde;
+    titelEl.textContent = "Fallakte " + FALL.aktenzeichen;
+    subEl.textContent = FALL.behoerde;
+    titelEl.classList.remove('ordnungsamt-hervor');
+    subEl.classList.toggle('ordnungsamt-hervor', /Ordnungsamt/.test(FALL.behoerde));
     renderFallakte();
   } else {
-    document.getElementById('amtTitle').textContent = a.name;
-    document.getElementById('amtSub').textContent = a.sub;
+    titelEl.textContent = a.name;
+    subEl.textContent = a.sub;
+    // Nur wenn man sich im Ordnungsamt befindet: Amtsname fett + farbig.
+    // (Die Ämter-Auswahlliste links bleibt davon unberührt.)
+    titelEl.classList.toggle('ordnungsamt-hervor', a.name === 'Ordnungsamt');
+    subEl.classList.remove('ordnungsamt-hervor');
     renderPortalAmt(a);
   }
   buildSidebar();
@@ -2060,7 +2075,7 @@ function renderFallakte(){
   c.innerHTML = `
     <span class="back-link" id="backLink">← Zurück zu Vorgängen</span>
     <div class="fallakte-head"><h2>${FALL.titel}</h2></div>
-    <div class="fallakte-sub">${FALL.behoerde}</div>
+    <div class="fallakte-sub${/Ordnungsamt/.test(FALL.behoerde) ? ' ordnungsamt-hervor' : ''}">${FALL.behoerde}</div>
     <div class="info-grid-portal">
       <div><span class="l">Aktenzeichen</span><span class="v">${FALL.aktenzeichen}</span></div>
       <div><span class="l">Eingang</span><span class="v">${FALL.eingang}</span></div>
@@ -2103,6 +2118,7 @@ function renderFallakte(){
 }
 
 function renderAufbaumuster(){
+  editorAutosaveJetzt();
   const uid = aktuellerBenutzerId();
   const u = holeBenutzerDaten(uid);
   const wrap = document.getElementById('aufbauTree');
@@ -2122,7 +2138,7 @@ function renderAufbaumuster(){
       ${n.info ? `<button type="button" class="aufbau-info-btn" data-info-node="${n.id}" title="Hinweis anzeigen" aria-label="Hinweis anzeigen">i</button>` : ''}
       ${n.special ? '<span class="aufbau-flag">Besonderer Prüfungspunkt</span>' : ''}
       ${(!istEditierbar && n.hinweis) ? `<span class="aufbau-hinweis-inline">${n.hinweis}</span>` : ''}
-      ${istEditierbar ? `<span class="aufbau-status">${badge(statusBadgeClass(status))}</span>` : '<span class="aufbau-status"></span>'}
+      ${(istEditierbar && !hatKinder) ? `<span class="aufbau-status">${badge(statusBadgeClass(status))}</span>` : '<span class="aufbau-status"></span>'}
     `;
     const infoBtn = row.querySelector('.aufbau-info-btn');
     if(infoBtn){
@@ -2192,6 +2208,7 @@ function schachtelHinzufuegenKlick(nodeId){
 }
 
 function renderEditor(){
+  editorAutosaveJetzt();
   const wrap = document.getElementById('editorWrap');
   if(!offenerKnoten){ wrap.innerHTML=''; return; }
   const n = findNode(offenerKnoten);
@@ -2207,7 +2224,7 @@ function renderEditor(){
         ${badge(statusBadgeClass(eintrag.status))}
       </div>
       ${n.hinweis ? `<div class="editor-hinweis">${n.hinweis}</div>` : ''}
-      <textarea id="editorText" placeholder="Eigene Bearbeitung eintragen ..." ${sx ? `oninput="pruefeSchachtelTrigger('${n.id}')"` : ''}>${eintrag.text || ''}</textarea>
+      <textarea id="editorText" data-node="${n.id}" placeholder="Eigene Bearbeitung eintragen ..." ${sx ? `oninput="pruefeSchachtelTrigger('${n.id}')"` : ''}>${eintrag.text || ''}</textarea>
       ${sx ? `<div id="schachtelPrompt" class="schachtel-prompt" style="display:none;">
         <button type="button" class="btn-secondary" onclick="schachtelHinzufuegenKlick('${n.id}')">Schachtelprüfung für ${sx.triggerLabel} hinzufügen?</button>
       </div>` : ''}
@@ -2221,16 +2238,80 @@ function renderEditor(){
     </div>
   `;
   if(sx){ pruefeSchachtelTrigger(n.id); }
+  const ta = document.getElementById('editorText');
+  if(ta){
+    ta.addEventListener('input', editorAutosavePlanen);
+    ta.addEventListener('blur', editorAutosaveJetzt);
+  }
 }
+
+/* ---------------------------------------------------------------------
+   AUTOMATISCHES SPEICHERN (ab v0.9f)
+   Der Text im Editor wird automatisch als Entwurf gespeichert:
+   – 1,5 Sekunden nach der letzten Tastatureingabe,
+   – sobald das Textfeld verlassen wird (anderswo hingeklickt/getippt),
+   – bevor ein anderer Prüfungspunkt, eine andere Ansicht oder ein anderes
+     Amt angezeigt wird, beim Abmelden sowie beim Schließen/Wechseln des
+     Tabs bzw. der App.
+   Das Textfeld merkt sich über data-node, zu welchem Prüfungspunkt es
+   gehört, damit auch bei einem Wechsel immer der richtige Punkt gespeichert
+   wird. Gespeichert wird nur, wenn sich der Text tatsächlich geändert hat.
+   "Bearbeitung abgeben" bleibt ein bewusster, eigener Schritt.
+--------------------------------------------------------------------- */
+let editorAutosaveTimer = null;
+function editorAutosavePlanen(){
+  clearTimeout(editorAutosaveTimer);
+  const msg = document.getElementById('editorMsg');
+  if(msg){ msg.textContent = 'Änderungen werden gespeichert …'; msg.classList.add('autosave'); }
+  editorAutosaveTimer = setTimeout(editorAutosaveJetzt, 1500);
+}
+function editorAutosaveJetzt(){
+  clearTimeout(editorAutosaveTimer);
+  const ta = document.getElementById('editorText');
+  if(!ta || !ta.dataset.node) return;
+  const uid = aktuellerBenutzerId();
+  if(!uid || !SCHUELER.find(s=>s.id===uid)) return;
+  const nodeId = ta.dataset.node;
+  const text = ta.value;
+  const store = ladeSpeicher();
+  const u = store.users[uid];
+  const alt = (u && u.entries && u.entries[nodeId]) ? u.entries[nodeId] : null;
+  const altText = alt ? (alt.text || '') : '';
+  const msg = document.getElementById('editorMsg');
+  if(text === altText){
+    if(msg && msg.classList.contains('autosave')) msg.textContent = alt ? 'Automatisch gespeichert.' : '';
+    return;
+  }
+  const warAbgegeben = alt && alt.status === 'bearbeitet';
+  setzeEintrag(uid, nodeId, text, 'speichern');
+  if(msg){
+    msg.classList.add('autosave');
+    msg.textContent = warAbgegeben
+      ? 'Automatisch gespeichert – Text wurde geändert, bitte erneut „Bearbeitung abgeben“.'
+      : 'Automatisch gespeichert.';
+  }
+  // Statusanzeige im Editorkopf aktualisieren, ohne das Textfeld neu aufzubauen
+  // (sonst ginge beim Tippen die Schreibposition verloren).
+  const kopfBadge = document.querySelector('.editor-box .editor-head > :last-child');
+  const neu = ladeSpeicher().users[uid].entries[nodeId];
+  if(kopfBadge && neu && ta.isConnected) kopfBadge.outerHTML = badge(statusBadgeClass(neu.status));
+  renderFallakteKopf();
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'hidden') editorAutosaveJetzt(); });
+window.addEventListener('pagehide', editorAutosaveJetzt);
+window.addEventListener('beforeunload', editorAutosaveJetzt);
 function editorSpeichern(){
+  clearTimeout(editorAutosaveTimer);
   const uid = aktuellerBenutzerId();
   const text = document.getElementById('editorText').value;
   setzeEintrag(uid, offenerKnoten, text, 'speichern');
+  document.getElementById('editorMsg').classList.remove('autosave');
   document.getElementById('editorMsg').textContent = 'Entwurf gespeichert.';
   renderAufbaumuster();
   renderFallakteKopf();
 }
 function editorAbgeben(){
+  clearTimeout(editorAutosaveTimer);
   const uid = aktuellerBenutzerId();
   const text = document.getElementById('editorText').value;
   setzeEintrag(uid, offenerKnoten, text, 'abgeben');
@@ -2733,6 +2814,7 @@ function gotoPortal(){
   else{ zeigeLoginBildschirm(); }
 }
 function gotoPublic(){
+  editorAutosaveJetzt();
   document.getElementById('intern').style.display='none';
   document.getElementById('public-app').style.display='block';
 }
