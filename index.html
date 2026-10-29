@@ -1378,8 +1378,13 @@ window.addEventListener('DOMContentLoaded', ()=>{ renderNav(); route(); });
    0.9f – 28.09.2026: Automatisches Speichern im Aufbaumuster-Editor,
           „Ordnungsamt“ im Kopfbereich fett und farbig hervorgehoben.
    0.9g – 28.09.2026: Status-Anzeige nur noch bei Punkten mit Textfeld
-          (nicht bei Gliederungsüberschriften), Ordnungsamt in hellem Grün. */
-const PORTAL_VERSION = "0.9g";
+          (nicht bei Gliederungsüberschriften), Ordnungsamt in hellem Grün.
+   0.9h – 29.10.2026: Zweiter Fall 2026-0291 (Schießübungen im Garten –
+          Frau Grube). Portal kann jetzt mehrere Fallakten; Bearbeitungsstand,
+          Gutachten und Schachtelprüfung werden je Fall getrennt gespeichert
+          (Fall 2026-0237 unverändert an der bisherigen Stelle).
+   0.9i – 29.10.2026: Fall 2026-0291 mit Vergleichsabbildungen Original/CO2-Pistole. */
+const PORTAL_VERSION = "0.9i";
 document.addEventListener('DOMContentLoaded', ()=>{
   const el = document.getElementById('portalVersionLabel');
   if(el) el.textContent = PORTAL_VERSION;
@@ -1441,7 +1446,7 @@ const SCHUELER = baueSchuelerListe();
 /* ---------------------------------------------------------------------
    2. FALL- UND AMTSKONFIGURATION
 --------------------------------------------------------------------- */
-const FALL = {
+const FALL_0237 = {
   aktenzeichen: "2026-0237",
   titel: "Stacheldrahtzaun – Anordnung ggü. Frau Straub",
   behoerde: "Ordnungsamt Straußenburg",
@@ -1476,6 +1481,42 @@ const FALL = {
   ]
 };
 
+/* Zweiter Fall (ab v0.9h): Schießübungen mit einer Luftpistole im Garten.
+   Grundlage: Klassenarbeit Nr. 2 (2023), auf Schriftstücke der digitalen
+   Fallakte verteilt. Keine Lösungshinweise. */
+const FALL_0291 = {
+  aktenzeichen: "2026-0291",
+  titel: "Schießübungen im Garten – Frau Grube",
+  behoerde: "Ordnungsamt Straußenburg",
+  rechtsgrundlagen: "",
+  eingang: "06.10.2026", wiedervorlage: "03.11.2026",
+  zustaendigkeit: "Ordnungsamt Straußenburg",
+  beteiligte: [
+    {rolle:"Schießübungen im eigenen Garten, Goethegasse 11", name:"Claire Grube"},
+    {rolle:"Beschwerdeführer, Nachbar, Goethegasse 9", name:"Karl E. Stelle"}
+  ],
+  ablauf: [
+    {datum:"05.10.2026", ereignis:"Beschwerdeschreiben Karl E. Stelle (Posteingang Rathaus 06.10.2026)"},
+    {datum:"06.10.2026", ereignis:"Außentermin mit Hinzuziehung der Polizei, Gespräch mit Frau Grube"},
+    {datum:"07.10.2026", ereignis:"Aktenvermerk, Gesprächsvermerk, Aktennotiz und Bilddokumentation Donna Weta"},
+    {datum:"08.10.2026", ereignis:"Verfügung der Fachdienstleitung (Arbeitsauftrag)"},
+    {datum:"03.11.2026", ereignis:"Wiedervorlage / weitere Bearbeitung"}
+  ],
+  sachverhalt: "Frau Claire Grube übt seit Kurzem in ihrem Garten in der Goethegasse 11 das Schießen mit einer Luftpistole. Ihr Nachbar, Herr Karl E. Stelle, hat Geschosse auf seinem Grundstück gefunden und sich mit einer Beschwerde an die Stadt gewandt. Die Fachdienstleitung hat um gutachtliche Prüfung der Rechtslage gebeten.",
+  dokumente: [
+    {id:"g_beschwerde", name:"Eingangsschreiben – Karl E. Stelle", datum:"05.10.2026", typ:"PDF", groesse:"1,4 MB", href:"akte/2026-0291/dokumente/01_beschwerde_karl-e-stelle.pdf"},
+    {id:"g_aussentermin", name:"Aktenvermerk – Außentermin (Donna Weta)", datum:"07.10.2026", typ:"PDF", groesse:"1,4 MB", href:"akte/2026-0291/dokumente/02_aktenvermerk-aussentermin-donna-weta.pdf"},
+    {id:"g_gespraech", name:"Gesprächsvermerk – Claire Grube", datum:"07.10.2026", typ:"PDF", groesse:"1,4 MB", href:"akte/2026-0291/dokumente/03_gespraechsvermerk-claire-grube.pdf"},
+    {id:"g_recherche", name:"Aktennotiz – Recherche Diabolos/Waffe", datum:"07.10.2026", typ:"PDF", groesse:"1,4 MB", href:"akte/2026-0291/dokumente/04_aktennotiz-recherche-diabolos.pdf"},
+    {id:"g_bilddoku", name:"Bilddokumentation – Vergleichsabbildungen Waffe (PDF)", datum:"07.10.2026", typ:"PDF", groesse:"1,4 MB", href:"akte/2026-0291/dokumente/05_bilddokumentation-goethegasse.pdf"},
+    {id:"g_verfuegung", name:"Verfügung der Fachdienstleitung – Arbeitsauftrag", datum:"08.10.2026", typ:"PDF", groesse:"1,4 MB", href:"akte/2026-0291/dokumente/06_verfuegung-fachdienstleitung.pdf"}
+  ],
+  bilder: [
+    {name:"Abbildung 1 – Original: Walther P88 Compact (scharfe Schusswaffe)", href:"akte/2026-0291/bilder/lichtbild-01-original-walther-p88.jpg"},
+    {name:"Abbildung 2 – CO2-Variante: Walther CP88 (Luftpistole)", href:"akte/2026-0291/bilder/lichtbild-02-co2-walther-cp88.jpg"}
+  ]
+};
+
 const PORTAL_AEMTER = {
   buergerbuero: { name:"Bürgerbüro", sub:"Meldewesen · Ausweise · Gewerbeanmeldungen", initials:"BB",
     stats:[["14","Offene Vorgänge","gold"],["3","Frist < 3 Tage","warn"],["21","Erledigt (Woche)","ok"],["4","Team-Mitglieder",""]],
@@ -1495,7 +1536,8 @@ const PORTAL_AEMTER = {
   ordnungsamt: { name:"Ordnungsamt", sub:"Gefahrenabwehr · öffentliche Sicherheit · Gewerbeaufsicht", initials:"OA",
     stats:[["8","Offene Vorgänge","gold"],["2","Frist < 3 Tage","warn"],["12","Erledigt (Woche)","ok"],["3","Team-Mitglieder",""]],
     vorgaenge:[
-      ["V-88","Stacheldrahtzaun – Straub","Erbengem. Drahtig","30.08.","–","offen","fallakte"],
+      ["V-91","Schießübungen im Garten – Grube","Herr Stelle","06.10.","–","offen","fallakte","2026-0291"],
+      ["V-88","Stacheldrahtzaun – Straub","Erbengem. Drahtig","30.08.","–","offen","fallakte","2026-0237"],
       ["V-81","Fahrtenbuchauflage – Eilig","Herr Eilig","26.08.","03.09.","frist"],
       ["V-77","Baumhaus – Tross","Familie Tross","20.08.","27.08.","erledigt"],
       ["V-70","Gewerbeuntersagung – Korn","Herr Korn","15.08.","22.08.","erledigt"],
@@ -1503,7 +1545,7 @@ const PORTAL_AEMTER = {
       ["V-60","Straußer Heide – Naturschutz","Anonym","05.08.","12.08.","erledigt"]
     ],
     team:[["Donna Weta","Sachbearbeitung","4 Vorgänge"],["Erkan Ahles","Außendienst","3 Vorgänge"],["Herr Strauß","Fachdienstleitung","Aufsicht"]],
-    termine:[["07.10., 09:00","Wiedervorlage Vorgang 2026-0237"],["11.09., 15:00","Team-Besprechung Ordnungsamt"]],
+    termine:[["07.10., 09:00","Wiedervorlage Vorgang 2026-0237"],["03.11., 09:00","Wiedervorlage Vorgang 2026-0291"],["11.09., 15:00","Team-Besprechung Ordnungsamt"]],
     dokumente:["Prüfungsschema Gefahrenabwehrrecht (PDF)","Dienstanweisung Außendienst (PDF)","Vordruck Ordnungsverfügung (DOCX)"],
     mitteilungen:["Neue Zuständigkeit für Sondernutzungen ab 01.10.","Fortbildung NPOG am 15.09."]
   },
@@ -1541,7 +1583,7 @@ const PORTAL_AEMTER = {
    Die Nummerierung entspricht bewusst genau dem Aufbaumuster der
    Lehrkraft, inkl. der uneinheitlichen "c)"-Bezeichnung – NICHT verändern.
 --------------------------------------------------------------------- */
-const AUFBAUMUSTER = [
+const AUFBAU_0237 = [
   {id:"A", number:"A.", title:"Arbeitsziel/Maßnahme", editable:true, weight:5,
     info:"Prüfen Sie gutachtlich, ob eine ordnungsbehördliche Anordnung gegen Frau Straub ergehen kann, mit der ihr die Entfernung des straßenseitig angebrachten Stacheldrahtzaunes aufgegeben werden kann!"},
   {id:"B", number:"B.", title:"Rechtmäßigkeit", weight:0, children:[
@@ -1586,12 +1628,71 @@ const AUFBAUMUSTER = [
   {id:"C", number:"C.", title:"Ergebnis und ggf. Entscheidungsvorschlag", editable:true, weight:5}
 ];
 
+/* Aufbaumuster für Fall 2026-0291: gleiche Struktur, Nummerierung und
+   Gewichtung wie 2026-0237 (tiefe Kopie). Angepasst werden nur die
+   fallbezogenen Hilfetexte (i-Symbol) und Hinweise. */
+function baueAufbau0291(){
+  const t = JSON.parse(JSON.stringify(AUFBAU_0237));
+  const alle = flattenNodes(t);
+  const k = id => alle.find(n=>n.id===id);
+  k("A").info = "Arbeitsauftrag der Fachdienstleitung (Verfügung vom 08.10.2026): 1. Prüfen Sie gutachtlich die Rechtslage! 2. Führen Sie aus, welche Maßnahme Sie in diesem Fall für am sinnvollsten halten. – Legen Sie hier zunächst selbst fest, welche Maßnahme gegenüber welcher Person Sie prüfen.";
+  k("B_I_0").info = "Die beabsichtigte Maßnahme ist dann rechtmäßig, wenn sie dem Grundsatz der Gesetzmäßigkeit der Verwaltung (Art. 20 III GG) entspricht, d. h. in formeller und materieller Hinsicht den Anforderungen der Rechtsordnung genügt (Vorrang des Gesetzes). Prüfen Sie, ob die Maßnahme für die Person, an die sie sich richtet, belastend ist – dann benötigt die Behörde für ihr Handeln eine Ermächtigungsgrundlage (Vorbehalt des Gesetzes).";
+  k("B_I_1").hinweis = "Laut Verfügung der Fachdienstleitung braucht eine spezialgesetzliche Ermächtigungsgrundlage (z. B. im WaffG) nicht gesucht zu werden.";
+  delete k("B_II_2_b_b_aa").hinweis;
+  return t;
+}
 function flattenNodes(tree, out){
   out = out || [];
   tree.forEach(n=>{ out.push(n); if(n.children){ flattenNodes(n.children, out); } });
   return out;
 }
-const ALLE_KNOTEN = flattenNodes(AUFBAUMUSTER);
+const AUFBAU_0291 = baueAufbau0291();
+
+/* ---------------------------------------------------------------------
+   2c. FALLREGISTER (ab v0.9h)
+   Alle Render- und Speicherfunktionen arbeiten mit FALL / AUFBAUMUSTER /
+   ALLE_KNOTEN / GESAMTGEWICHT des gerade geöffneten Falls. aktiviereFall()
+   schaltet diese um. Die Bearbeitungsdaten liegen je Fall getrennt:
+   2026-0237 wie bisher direkt im Benutzerdokument (entries, gutachten,
+   schachteln), jeder weitere Fall unter faelle[<Aktenzeichen>].
+--------------------------------------------------------------------- */
+const FAELLE = {
+  "2026-0237": { fall: FALL_0237, aufbau: AUFBAU_0237 },
+  "2026-0291": { fall: FALL_0291, aufbau: AUFBAU_0291 }
+};
+const ERSTER_FALL = "2026-0237";
+let AKTIVER_FALL = ERSTER_FALL;
+let FALL = FALL_0237;
+let AUFBAUMUSTER = AUFBAU_0237;
+let ALLE_KNOTEN = flattenNodes(AUFBAUMUSTER);
+function leeresGutachten(){ return {status:'none', text:'', createdAt:null, releasedAt:null, deliverAt:null, delivered:false}; }
+function fallDaten(u, az){
+  az = az || AKTIVER_FALL;
+  if(az === ERSTER_FALL){
+    if(!u.entries) u.entries = {};
+    if(!u.gutachten) u.gutachten = leeresGutachten();
+    if(!u.schachteln) u.schachteln = {};
+    return u;
+  }
+  if(!u.faelle) u.faelle = {};
+  if(!u.faelle[az]) u.faelle[az] = { entries:{}, gutachten:leeresGutachten(), schachteln:{} };
+  const f = u.faelle[az];
+  if(!f.entries) f.entries = {};
+  if(!f.gutachten) f.gutachten = leeresGutachten();
+  if(!f.schachteln) f.schachteln = {};
+  return f;
+}
+function aktiviereFall(az){
+  if(!FAELLE[az] || az === AKTIVER_FALL) return;
+  editorAutosaveJetzt();
+  AKTIVER_FALL = az;
+  FALL = FAELLE[az].fall;
+  AUFBAUMUSTER = FAELLE[az].aufbau;
+  ALLE_KNOTEN = flattenNodes(AUFBAUMUSTER);
+  GESAMTGEWICHT = ALLE_KNOTEN.reduce((s,n)=> s + (n.weight||0), 0);
+  offenerKnoten = null;
+  expandedNodes = new Set();
+}
 function findNode(id){
   const f = ALLE_KNOTEN.find(n=>n.id===id);
   if(f) return f;
@@ -1633,12 +1734,12 @@ const SCHACHTELN = {
   }
 };
 const SCHACHTEL_ALLE_KNOTEN = Object.values(SCHACHTELN).flatMap(sx => [...sx.nodes, sx.close]);
-const GESAMTGEWICHT = ALLE_KNOTEN.reduce((s,n)=> s + (n.weight||0), 0);
-function schachtelAktiv(u, parentId){ return !!(u.schachteln && u.schachteln[parentId]); }
+let GESAMTGEWICHT = ALLE_KNOTEN.reduce((s,n)=> s + (n.weight||0), 0);
+function schachtelAktiv(u, parentId){ return !!(fallDaten(u).schachteln && fallDaten(u).schachteln[parentId]); }
 function schachtelHinzufuegen(userId, parentId){
   aktualisiereBenutzerDaten(userId, (u)=>{
-    if(!u.schachteln) u.schachteln = {};
-    u.schachteln[parentId] = true;
+    if(!fallDaten(u).schachteln) fallDaten(u).schachteln = {};
+    fallDaten(u).schachteln[parentId] = true;
   });
 }
 
@@ -1654,6 +1755,15 @@ function standardPostfach(){
     mk('m_anhoerung','Anhörung durchgeführt – Vorgang 2026-0237','Donna Weta, Sachbearbeitung','Die Anhörung im Vorgang 2026-0237 wurde durchgeführt. Der Anhörungsvermerk liegt in der Fallakte vor. Wiedervorlage: 07.10.2026.',1),
     mk('m_termin','Außendiensttermin dokumentiert – Vorgang 2026-0237','Donna Weta, Sachbearbeitung','Der Außendiensttermin am Wassermühlenweg wurde durchgeführt und dokumentiert. Der Aktenvermerk sowie die Lichtbilder sind in der Fallakte abgelegt.',2),
     mk('m_hinweis','Bürgerhinweis zum Grundstück Drahtig – Eingang erfasst','Posteingang Ordnungsamt','Der Bürgerhinweis von Herrn Tim Bucktu wurde zum Vorgang 2026-0237 genommen. Bitte berücksichtigen Sie die Angaben als Teil der Vorgangsunterlagen.',3)
+  ].concat(postfachFall0291());
+}
+function postfachFall0291(){
+  const now = new Date();
+  const mk=(id,subject,from,body,minAgo,read)=>({id,subject,from,body,date:new Date(now.getTime()-minAgo*60000).toISOString(),read});
+  return [
+    mk('m0291_zuweisung','Neuer Vorgang 2026-0291 – Schießübungen im Garten','Herr Strauß, Fachdienstleitung Ordnungsamt','Ihnen wurde der Vorgang 2026-0291 zur Bearbeitung zugewiesen. Meine Verfügung mit dem Arbeitsauftrag und den Bearbeitungshinweisen liegt in der Fallakte. Bitte bearbeiten Sie den Fall anhand des Aufbaumusters.',0,false),
+    mk('m0291_aussentermin','Außentermin Goethegasse dokumentiert – Vorgang 2026-0291','Donna Weta, Sachbearbeitung','Der Außentermin vom 06.10.2026 ist dokumentiert. Aktenvermerk, Gesprächsvermerk, Aktennotiz und Vergleichsabbildungen zur Waffe liegen in der Fallakte.',5,true),
+    mk('m0291_eingang','Beschwerde von Herrn Karl E. Stelle – Eingang erfasst','Posteingang Ordnungsamt','Das Schreiben von Herrn Karl E. Stelle vom 05.10.2026 wurde zum Vorgang 2026-0291 genommen. Bitte berücksichtigen Sie die Angaben als Teil der Vorgangsunterlagen.',10,true)
   ];
 }
 function standardLogin(){
@@ -1706,6 +1816,9 @@ function backfillBenutzerDatensatz(u){
   if(!u.schachteln) u.schachteln = {};
   if(!u.login) u.login = standardLogin();
   if(!u.markierungen) u.markierungen = {};
+  if(!u.faelle) u.faelle = {};
+  // Bestehende Konten erhalten die Nachrichten zum neuen Fall einmalig dazu.
+  if(!u.mailbox.some(m=>m.id==='m0291_zuweisung')) u.mailbox = u.mailbox.concat(postfachFall0291());
 }
 function holeBenutzerDaten(userId){
   const store = ladeSpeicher();
@@ -1725,18 +1838,19 @@ function aktualisiereBenutzerDaten(userId, updater){
 /* ---------------------------------------------------------------------
    5. FORTSCHRITT & STATUSLOGIK
 --------------------------------------------------------------------- */
-function setzeEintrag(userId, nodeId, text, aktion){
+function setzeEintrag(userId, nodeId, text, aktion, az){
   aktualisiereBenutzerDaten(userId, (u)=>{
-    const bisherigerStatus = u.entries[nodeId] ? u.entries[nodeId].status : 'offen';
+    const f = fallDaten(u, az);
+    const bisherigerStatus = f.entries[nodeId] ? f.entries[nodeId].status : 'offen';
     let neuerStatus = 'in_bearbeitung';
     if(aktion === 'abgeben'){ neuerStatus = 'bearbeitet'; }
     else if(aktion === 'speichern' && bisherigerStatus === 'bearbeitet'){ neuerStatus = 'in_bearbeitung'; }
-    u.entries[nodeId] = { text: text, status: neuerStatus, updatedAt: new Date().toISOString() };
+    f.entries[nodeId] = { text: text, status: neuerStatus, updatedAt: new Date().toISOString() };
   });
 }
 function knotenStatus(userId, nodeId){
   const u = holeBenutzerDaten(userId);
-  return u.entries[nodeId] ? u.entries[nodeId].status : 'offen';
+  return fallDaten(u).entries[nodeId] ? fallDaten(u).entries[nodeId].status : 'offen';
 }
 function effektivesGewicht(u, n){
   const sx = SCHACHTELN[n.id];
@@ -1751,13 +1865,13 @@ function berechneFortschritt(userId){
   let erreicht = 0;
   ALLE_KNOTEN.forEach(n=>{
     const w = effektivesGewicht(u, n);
-    if(w>0 && u.entries[n.id] && u.entries[n.id].status==='bearbeitet'){ erreicht += w; }
+    if(w>0 && fallDaten(u).entries[n.id] && fallDaten(u).entries[n.id].status==='bearbeitet'){ erreicht += w; }
   });
   Object.keys(SCHACHTELN).forEach(parentId=>{
     if(!schachtelAktiv(u, parentId)) return;
     const sx = SCHACHTELN[parentId];
     [...sx.nodes, sx.close].forEach(n=>{
-      if(n.weight>0 && u.entries[n.id] && u.entries[n.id].status==='bearbeitet'){ erreicht += n.weight; }
+      if(n.weight>0 && fallDaten(u).entries[n.id] && fallDaten(u).entries[n.id].status==='bearbeitet'){ erreicht += n.weight; }
     });
   });
   return Math.round((erreicht / GESAMTGEWICHT) * 100);
@@ -2048,11 +2162,11 @@ function renderPortalAmt(a){
 }
 function renderPortalTable(rows){
   return `<table class="vg"><thead><tr><th>Nr.</th><th>Vorgang</th><th>Bürger*in</th><th>Eingang</th><th>Frist</th><th>Status</th></tr></thead><tbody>
-    ${rows.map(r=>`<tr class="${r[6]==='fallakte' ? 'clickable' : ''}" data-goto="${r[6]||''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${badge(r[5])}</td></tr>`).join('')}
+    ${rows.map(r=>`<tr class="${r[6]==='fallakte' ? 'clickable' : ''}" data-goto="${r[6]||''}" data-fall="${r[7]||''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${badge(r[5])}</td></tr>`).join('')}
   </tbody></table>`;
 }
 function attachPortalRowHandlers(){
-  document.querySelectorAll('tr[data-goto="fallakte"]').forEach(row=>{ row.onclick = ()=>{ currentView='fallakte'; renderPortal(); }; });
+  document.querySelectorAll('tr[data-goto="fallakte"]').forEach(row=>{ row.onclick = ()=>{ aktiviereFall(row.dataset.fall || ERSTER_FALL); currentView='fallakte'; renderPortal(); window.scrollTo(0,0); }; });
 }
 
 /* ---------------------------------------------------------------------
@@ -2215,7 +2329,7 @@ function renderEditor(){
   if(!n || !(n.editable === true || (n.weight||0)>0)){ wrap.innerHTML=''; return; }
   const uid = aktuellerBenutzerId();
   const u = holeBenutzerDaten(uid);
-  const eintrag = u.entries[n.id] || {text:'', status:'offen'};
+  const eintrag = fallDaten(u).entries[n.id] || {text:'', status:'offen'};
   const sx = SCHACHTELN[n.id];
   wrap.innerHTML = `
     <div class="editor-box">
@@ -2224,7 +2338,7 @@ function renderEditor(){
         ${badge(statusBadgeClass(eintrag.status))}
       </div>
       ${n.hinweis ? `<div class="editor-hinweis">${n.hinweis}</div>` : ''}
-      <textarea id="editorText" data-node="${n.id}" placeholder="Eigene Bearbeitung eintragen ..." ${sx ? `oninput="pruefeSchachtelTrigger('${n.id}')"` : ''}>${eintrag.text || ''}</textarea>
+      <textarea id="editorText" data-node="${n.id}" data-fall="${AKTIVER_FALL}" placeholder="Eigene Bearbeitung eintragen ..." ${sx ? `oninput="pruefeSchachtelTrigger('${n.id}')"` : ''}>${eintrag.text || ''}</textarea>
       ${sx ? `<div id="schachtelPrompt" class="schachtel-prompt" style="display:none;">
         <button type="button" class="btn-secondary" onclick="schachtelHinzufuegenKlick('${n.id}')">Schachtelprüfung für ${sx.triggerLabel} hinzufügen?</button>
       </div>` : ''}
@@ -2275,7 +2389,8 @@ function editorAutosaveJetzt(){
   const text = ta.value;
   const store = ladeSpeicher();
   const u = store.users[uid];
-  const alt = (u && u.entries && u.entries[nodeId]) ? u.entries[nodeId] : null;
+  const taFall = ta.dataset.fall || AKTIVER_FALL;
+  const alt = (u && fallDaten(u, taFall).entries[nodeId]) ? fallDaten(u, taFall).entries[nodeId] : null;
   const altText = alt ? (alt.text || '') : '';
   const msg = document.getElementById('editorMsg');
   if(text === altText){
@@ -2283,7 +2398,7 @@ function editorAutosaveJetzt(){
     return;
   }
   const warAbgegeben = alt && alt.status === 'bearbeitet';
-  setzeEintrag(uid, nodeId, text, 'speichern');
+  setzeEintrag(uid, nodeId, text, 'speichern', taFall);
   if(msg){
     msg.classList.add('autosave');
     msg.textContent = warAbgegeben
@@ -2293,7 +2408,7 @@ function editorAutosaveJetzt(){
   // Statusanzeige im Editorkopf aktualisieren, ohne das Textfeld neu aufzubauen
   // (sonst ginge beim Tippen die Schreibposition verloren).
   const kopfBadge = document.querySelector('.editor-box .editor-head > :last-child');
-  const neu = ladeSpeicher().users[uid].entries[nodeId];
+  const neu = fallDaten(ladeSpeicher().users[uid], taFall).entries[nodeId];
   if(kopfBadge && neu && ta.isConnected) kopfBadge.outerHTML = badge(statusBadgeClass(neu.status));
   renderFallakteKopf();
 }
@@ -2337,7 +2452,7 @@ function renderAbschlussBereich(){
   if(!wrap) return;
   if(fortschritt < 100){ wrap.innerHTML=''; return; }
 
-  if(u.gutachten.status === 'none'){
+  if(fallDaten(u).gutachten.status === 'none'){
     wrap.innerHTML = `
       <div class="abschluss-box">
         <div class="abschluss-check">✓ Vorgang vollständig bearbeitet</div>
@@ -2345,20 +2460,20 @@ function renderAbschlussBereich(){
         <p>Der Gutachtenentwurf kann nun erstellt werden.</p>
         <button class="submit-btn" onclick="gutachtenErstellen()">Gutachten erstellen</button>
       </div>`;
-  } else if(u.gutachten.status === 'entwurf'){
+  } else if(fallDaten(u).gutachten.status === 'entwurf'){
     wrap.innerHTML = `
       <div class="abschluss-box">
         <h4>Gutachtenentwurf</h4>
         <p>Bitte prüfen Sie den Gutachtenentwurf auf Vollständigkeit, Reihenfolge und inhaltliche Stimmigkeit.</p>
-        <pre class="gutachten-text">${escapeHtml(u.gutachten.text)}</pre>
+        <pre class="gutachten-text">${escapeHtml(fallDaten(u).gutachten.text)}</pre>
         <button class="submit-btn" onclick="gutachtenFreigeben()">Gutachten freigeben</button>
       </div>`;
-  } else if(u.gutachten.status === 'freigegeben'){
+  } else if(fallDaten(u).gutachten.status === 'freigegeben'){
     wrap.innerHTML = `
       <div class="abschluss-box">
         <h4>Gutachten freigegeben</h4>
         <p>Gutachten erfolgreich an die Fachdienstleitung übermittelt.</p>
-        <pre class="gutachten-text">${escapeHtml(u.gutachten.text)}</pre>
+        <pre class="gutachten-text">${escapeHtml(fallDaten(u).gutachten.text)}</pre>
         <p class="editor-hinweis">Eine Rückmeldung der Fachdienstleitung erscheint in Kürze in Ihrem Postfach.</p>
       </div>`;
   }
@@ -2374,7 +2489,7 @@ function gutachtenText(uid){
   function lauf(nodes, tiefe){
     nodes.forEach(n=>{
       zeilen.push((tiefe===0?'\n':'') + n.number + ' ' + n.title);
-      const eintrag = u.entries[n.id];
+      const eintrag = fallDaten(u).entries[n.id];
       if(eintrag && eintrag.text && eintrag.text.trim().length>0){
         zeilen.push(eintrag.text.trim());
       } else if(n.editable === true || (n.weight||0)>0){
@@ -2391,12 +2506,12 @@ function gutachtenText(uid){
         sx.nodes.forEach(sn=>{
           zeilen.push('');
           zeilen.push('    ' + sn.number + ' ' + sn.title);
-          const se = u.entries[sn.id];
+          const se = fallDaten(u).entries[sn.id];
           zeilen.push(se && se.text && se.text.trim().length>0 ? '    ' + se.text.trim() : '    [keine Bearbeitung erfasst]');
         });
         zeilen.push('');
         zeilen.push('    ' + sx.close.title);
-        const ce = u.entries[sx.close.id];
+        const ce = fallDaten(u).entries[sx.close.id];
         zeilen.push(ce && ce.text && ce.text.trim().length>0 ? '    ' + ce.text.trim() : '    [keine Bearbeitung erfasst]');
       }
     });
@@ -2409,7 +2524,7 @@ function gutachtenErstellen(){
   const uid = aktuellerBenutzerId();
   const text = gutachtenText(uid);
   aktualisiereBenutzerDaten(uid, (u)=>{
-    u.gutachten = { status:'entwurf', text: text, createdAt: new Date().toISOString(), releasedAt:null, deliverAt:null, delivered:false };
+    fallDaten(u).gutachten = { status:'entwurf', text: text, createdAt: new Date().toISOString(), releasedAt:null, deliverAt:null, delivered:false };
   });
   renderAbschlussBereich();
 }
@@ -2417,10 +2532,10 @@ function gutachtenFreigeben(){
   const uid = aktuellerBenutzerId();
   const deliverAt = Date.now() + 60000;
   aktualisiereBenutzerDaten(uid, (u)=>{
-    u.gutachten.status = 'freigegeben';
-    u.gutachten.releasedAt = new Date().toISOString();
-    u.gutachten.deliverAt = deliverAt;
-    u.gutachten.delivered = false;
+    fallDaten(u).gutachten.status = 'freigegeben';
+    fallDaten(u).gutachten.releasedAt = new Date().toISOString();
+    fallDaten(u).gutachten.deliverAt = deliverAt;
+    fallDaten(u).gutachten.delivered = false;
   });
   renderAbschlussBereich();
   starteMailboxTimer();
@@ -2452,18 +2567,25 @@ function pruefeFaelligePost(){
   const uid = aktuellerBenutzerId();
   if(!uid) return;
   const u = holeBenutzerDaten(uid);
-  if(u.gutachten && u.gutachten.status==='freigegeben' && !u.gutachten.delivered && u.gutachten.deliverAt && Date.now() >= u.gutachten.deliverAt){
-    aktualisiereBenutzerDaten(uid, (uu)=>{
-      uu.gutachten.delivered = true;
-      uu.mailbox.push({
-        id: 'm_'+Date.now(),
-        from: 'Herr Strauß, Fachdienstleitung Ordnungsamt',
-        subject: 'Vorgang '+FALL.aktenzeichen+' – Weiterbearbeitung',
-        body: 'Das Gutachten zum Vorgang '+FALL.aktenzeichen+' wurde geprüft. Bitte bereiten Sie auf Grundlage der bisherigen Vorgangsbearbeitung den erforderlichen Verwaltungsakt vor und legen Sie den Entwurf zur weiteren Bearbeitung vor.',
-        date: new Date().toISOString(),
-        read:false
+  let neuePost = false;
+  Object.keys(FAELLE).forEach(az=>{
+    const g = fallDaten(u, az).gutachten;
+    if(g && g.status==='freigegeben' && !g.delivered && g.deliverAt && Date.now() >= g.deliverAt){
+      aktualisiereBenutzerDaten(uid, (uu)=>{
+        fallDaten(uu, az).gutachten.delivered = true;
+        uu.mailbox.push({
+          id: 'm_'+az+'_'+Date.now(),
+          from: 'Herr Strauß, Fachdienstleitung Ordnungsamt',
+          subject: 'Vorgang '+az+' – Weiterbearbeitung',
+          body: 'Das Gutachten zum Vorgang '+az+' wurde geprüft. Bitte bereiten Sie auf Grundlage der bisherigen Vorgangsbearbeitung den erforderlichen Verwaltungsakt vor und legen Sie den Entwurf zur weiteren Bearbeitung vor.',
+          date: new Date().toISOString(),
+          read:false
+        });
       });
-    });
+      neuePost = true;
+    }
+  });
+  if(neuePost){
     if(currentView==='fallakte'){ renderAbschlussBereich(); }
     if(currentTab==='postfach'){ renderPortal(); }
   }
@@ -2480,13 +2602,13 @@ function toggleTestmodus(){
 function testSetze100(){
   const uid = aktuellerBenutzerId();
   aktualisiereBenutzerDaten(uid, (u)=>{
-    ALLE_KNOTEN.forEach(n=>{ if(n.weight>0){ u.entries[n.id] = {text: u.entries[n.id]?u.entries[n.id].text:'(Testtext)', status:'bearbeitet', updatedAt:new Date().toISOString()}; } });
+    ALLE_KNOTEN.forEach(n=>{ if(n.weight>0){ fallDaten(u).entries[n.id] = {text: fallDaten(u).entries[n.id]?fallDaten(u).entries[n.id].text:'(Testtext)', status:'bearbeitet', updatedAt:new Date().toISOString()}; } });
   });
   renderFallakte();
 }
 function testPostAusloesen(){
   const uid = aktuellerBenutzerId();
-  aktualisiereBenutzerDaten(uid, (u)=>{ if(u.gutachten.status==='freigegeben'){ u.gutachten.deliverAt = Date.now(); } });
+  aktualisiereBenutzerDaten(uid, (u)=>{ if(fallDaten(u).gutachten.status==='freigegeben'){ fallDaten(u).gutachten.deliverAt = Date.now(); } });
   pruefeFaelligePost();
 }
 function testZuruecksetzen(){
